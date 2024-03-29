@@ -61,3 +61,5 @@ guidance_encoder_kwargs:
   block_out_channels: [16, 32, 96, 256]
 
 enable_xformers_memory_efficient_attention: true
+
+max_guidance_length: 250

@@ -25,6 +25,8 @@ from pipelines.pipeline_aggregation import MultiGuidance2LongVideoPipeline
 
 from utils.video_utils import resize_tensor_frames, save_videos_grid, pil_list_to_tensor
 
+torch.cuda.set_per_process_memory_fraction(0.9, 0)
+
 
 def setup_savedir(cfg):
     time_str = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
@@ -70,7 +72,9 @@ def combine_guidance_data(cfg):
     guidance_pil_group = dict()
     for guidance_type in guidance_types:
         guidance_pil_group[guidance_type] = []
-        for guidance_image_path in sorted(Path(osp.join(guidance_data_folder, guidance_type)).iterdir()):
+        for i, guidance_image_path in enumerate(sorted(Path(osp.join(guidance_data_folder, guidance_type)).iterdir())):
+            if cfg.max_guidance_length > 0 and i >= cfg.max_guidance_length:
+                break
             # Add black background to semantic map
             if guidance_type == "semantic_map":
                 guidance_pil_group[guidance_type] += [process_semantic_map(guidance_image_path)]
